@@ -6,15 +6,31 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 import { NestFactory } from '@nestjs/core';
-import { VersioningType } from '@nestjs/common';
+import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import helmet from 'helmet';
+import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
+import * as winston from 'winston';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger({
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
+          ),
+        }),
+      ],
+    }),
+  });
 
+  app.use(helmet());
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   // 1. Tự động thêm tiền tố 'api' cho TOÀN BỘ hệ thống
   app.setGlobalPrefix('api');
