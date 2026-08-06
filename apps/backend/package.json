@@ -6,7 +6,8 @@
     "seed": "ts-node src/modules/seeder/seed.ts",
     "start": "ts-node src/main.ts",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/main.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start:prod": "node dist/main.js"
   },
   "devDependencies": {
     "@g-scores/tsconfig": "*",
@@ -22,6 +23,7 @@
     "@nestjs/common": "^11.1.28",
     "@nestjs/core": "^11.1.28",
     "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/swagger": "^11.4.6",
     "@prisma/adapter-pg": "^7.9.1",
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",

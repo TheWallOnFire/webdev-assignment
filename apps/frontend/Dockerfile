@@ -6,6 +6,8 @@ WORKDIR /app
 COPY package.json package-lock.json* turbo.json ./
 # Copy workspace package.json
 COPY apps/frontend/package.json ./apps/frontend/
+# Copy shared packages
+COPY packages ./packages
 
 # Install dependencies
 RUN npm install
