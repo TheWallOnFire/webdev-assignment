@@ -6,8 +6,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 
-// Load .env relative to this file's location
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: path.resolve(__dirname, `../../../${envFile}`) });
 
 const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
@@ -17,7 +17,6 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('Starting data seed...');
     
-    // Resolve path relative to the backend workspace
     const csvPath = path.resolve(process.cwd(), '../../dataset/diem_thi_thpt_2024.csv');
     
     if (!fs.existsSync(csvPath)) {
@@ -40,7 +39,7 @@ async function main() {
     for await (const line of rl) {
         if (isFirstLine) {
             isFirstLine = false;
-            continue; // Skip header
+            continue;
         }
         
         const [
@@ -66,23 +65,31 @@ async function main() {
         }
         
         if (batch.length >= BATCH_SIZE) {
+            try {
+                await prisma.studentScore.createMany({
+                    data: batch,
+                    skipDuplicates: true,
+                });
+                totalInserted += batch.length;
+                console.log(`Inserted ${totalInserted} records...`);
+            } catch (err) {
+                console.error(`Batch insert failed at ${totalInserted} records.`, err);
+            }
+            batch = [];
+        }
+    }
+    
+    if (batch.length > 0) {
+        try {
             await prisma.studentScore.createMany({
                 data: batch,
                 skipDuplicates: true,
             });
             totalInserted += batch.length;
             console.log(`Inserted ${totalInserted} records...`);
-            batch = [];
+        } catch (err) {
+            console.error('Final batch insert failed.', err);
         }
-    }
-    
-    if (batch.length > 0) {
-        await prisma.studentScore.createMany({
-            data: batch,
-            skipDuplicates: true,
-        });
-        totalInserted += batch.length;
-        console.log(`Inserted ${totalInserted} records...`);
     }
     
     console.log('Data seed completed successfully!');

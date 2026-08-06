@@ -63,3 +63,48 @@ Don't forget to add `README.md` which includes guide to run your project locally
 # Contributors
 
 - Edric Cao (from GO)
+
+## 🚀 How to Run Locally
+
+### 1. Prerequisites
+- **Node.js** (v18+)
+- **PostgreSQL** (running locally or via Docker)
+
+### 2. Installation
+First, install all project dependencies from the root directory:
+```bash
+npm install
+```
+
+### 3. Database Setup
+The backend uses Prisma ORM with PostgreSQL.
+1. Navigate to the backend app:
+   ```bash
+   cd apps/backend
+   ```
+2. Create a `.env` file based on the provided example:
+   ```bash
+   cp .env.example .env
+   ```
+   *Update the `DATABASE_URL` inside `.env` to match your local PostgreSQL credentials.*
+
+3. Run migrations to create the database schema:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+4. Seed the database with the provided CSV dataset:
+   ```bash
+   npm run seed
+   ```
+
+### 4. Start the Application
+Return to the root directory and start both the frontend and backend using TurboRepo:
+```bash
+cd ../..
+npm run dev
+```
+
+### 5. Access the Apps
+- **Frontend App**: [http://localhost:5173](http://localhost:5173)
+- **Backend API Docs (Swagger)**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)

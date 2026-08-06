@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { StudentScore } from '@g-scores/types';
+import { ScoresService } from '../services/scores.service';
 
 const ScoreChecker: React.FC = () => {
   const [sbd, setSbd] = useState('');
@@ -12,8 +12,8 @@ const ScoreChecker: React.FC = () => {
     setError('');
     setScore(null);
     try {
-      const response = await axios.get(`http://localhost:3000/api/v1/scores/${sbd}`);
-      setScore(response.data.data);
+      const data = await ScoresService.getScoreBySbd(sbd);
+      setScore(data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch score');
     }

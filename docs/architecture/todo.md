@@ -3,12 +3,12 @@
 This document breaks down the requirements from the assignment `README.md` into actionable tasks.
 
 ## 1. Project Setup & Architecture
-- [ ] Choose a frontend framework: **React with TypeScript**. Ensure React Hooks are utilized.
-- [ ] Choose a backend framework: **NestJS with TypeScript**.
-- [ ] Choose a database system: **PostgreSQL**.
-- [ ] Set up an ORM tool: **Prisma**.
-- [ ] Set up the basic project structure for both frontend and backend.
-- [ ] Initialize Git repository and add a `README.md` with instructions to run locally.
+- [x] Choose a frontend framework: **React with TypeScript**. Ensure React Hooks are utilized.
+- [x] Choose a backend framework: **NestJS with TypeScript**.
+- [x] Choose a database system: **PostgreSQL**.
+- [x] Set up an ORM tool: **Prisma**.
+- [x] Set up the basic project structure for both frontend and backend.
+- [x] Initialize Git repository and add a `README.md` with instructions to run locally.
 
 ## 2. Database & Data Seeding
 - [x] Analyze the provided `dataset/diem_thi_thpt_2024.csv` file and design the database schema to store this data efficiently.
@@ -43,7 +43,7 @@ This document breaks down the requirements from the assignment `README.md` into 
 ## 5. Nice-to-Have Features (Optional but highly recommended)
 - [ ] Ensure the entire frontend application has a **Responsive Design** (looks good on desktops, tablets, and mobile phones).
 - [ ] Add a `Dockerfile` and `docker-compose.yml` to set up the project using **Docker** for easy environment replication.
-- [ ] **Deploy** the application (Frontend + Backend + Database) to a live server or free tier provider (e.g., Render, Vercel, Fly.io, Heroku) and provide the live demo link in the repository `README.md`.
+- [x] **Deploy** the application (Frontend + Backend + Database) to a live server or free tier provider (e.g., Render, Vercel, Fly.io, Heroku) and provide the live demo link in the repository `README.md`.
 
 ## 6. Modern Web App Standards (Professional Additions)
 - [ ] **Security:**
@@ -55,7 +55,7 @@ This document breaks down the requirements from the assignment `README.md` into 
 - [ ] **Testing (QA):**
   - Write unit tests for core logic (e.g., data parsing and score calculations) using Jest, Mocha, or similar.
   - Implement basic E2E testing for the main user flows.
-- [ ] **API Documentation:**
+- [x] **API Documentation:**
   - Auto-generate API documentation using Swagger (OpenAPI) so frontend devs or external users can easily understand the endpoints.
 - [ ] **CI/CD Pipeline:**
   - Set up GitHub Actions (or GitLab CI) to automatically run tests, linting, and build checks on every Pull Request.
