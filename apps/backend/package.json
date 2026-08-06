@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "seed": "ts-node src/modules/seeder/seed.ts",
+    "start": "ts-node src/main.ts",
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/main.ts",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@g-scores/tsconfig": "*",
+    "@prisma/client": "^7.9.1",
+    "@types/node": "^20.5.1",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.9.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.28",
+    "@prisma/adapter-pg": "^7.9.1",
+    "pg": "^8.22.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  }
+}
