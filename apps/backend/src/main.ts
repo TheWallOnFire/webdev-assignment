@@ -1,16 +1,11 @@
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: path.join(__dirname, '..', envFile) });
-
 import { NestFactory } from '@nestjs/core';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
+import * as path from 'path';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpErrorFilter } from './common/filters/http-exception.filter';
@@ -26,24 +21,38 @@ async function bootstrap() {
           ),
         }),
         new winston.transports.File({
-          filename: path.join(__dirname, '..', 'logs', 'error.log'),
+          filename: path.join(process.cwd(), 'logs', 'error.log'),
           level: 'error',
           format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
         }),
         new winston.transports.File({
-          filename: path.join(__dirname, '..', 'logs', 'combined.log'),
+          filename: path.join(process.cwd(), 'logs', 'combined.log'),
           format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
         }),
       ],
     }),
   });
 
+  app.enableShutdownHooks();
+
+  const configService = app.get(ConfigService);
+  const nodeEnv = configService.get<string>('NODE_ENV', 'development');
+  const port = configService.get<number>('PORT', 3000);
+  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
+
   app.use(helmet());
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: frontendUrl,
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  
+  app.useGlobalPipes(
+    new ValidationPipe({ 
+      whitelist: true, 
+      transform: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
   app.setGlobalPrefix('api');
 
@@ -52,21 +61,26 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('G-Scores API')
-    .setDescription('API documentation for the G-Scores application')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  if (nodeEnv !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('G-Scores API')
+      .setDescription('API documentation for the G-Scores application')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpErrorFilter());
 
-  await app.listen(process.env.PORT || 3000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(`Swagger docs are available at: ${await app.getUrl()}/api/docs`);
+  await app.listen(port);
+  const appUrl = await app.getUrl();
+  console.log(`Application is running on: ${appUrl}`);
+  if (nodeEnv !== 'production') {
+    console.log(`Swagger docs are available at: ${appUrl}/api/docs`);
+  }
 }
 bootstrap();

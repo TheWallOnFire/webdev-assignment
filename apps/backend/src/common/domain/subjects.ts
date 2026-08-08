@@ -18,15 +18,6 @@ export abstract class SubjectGroup {
   getSubjectCodes(): string[] {
     return this.subjects.map(subject => subject.code);
   }
-
-  getSqlSelectSum(alias: string = 'total_score'): string {
-    const sumExpression = this.getSubjectCodes().map(code => `"${code}"`).join(' + ');
-    return `(${sumExpression}) as ${alias}`;
-  }
-
-  getSqlWhereNotNull(): string {
-    return this.getSubjectCodes().map(code => `"${code}" IS NOT NULL`).join(' AND ');
-  }
 }
 
 export class GroupA extends SubjectGroup {

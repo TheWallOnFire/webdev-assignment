@@ -1,12 +1,13 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor() {
-    const connectionString = process.env.DATABASE_URL;
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  constructor(configService: ConfigService) {
+    const connectionString = configService.get<string>('DATABASE_URL');
     
     if (!connectionString) {
       throw new Error('CRITICAL: DATABASE_URL is missing from the environment variables. The application cannot start.');
@@ -19,5 +20,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
   async onModuleInit() {
     await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
   }
 }

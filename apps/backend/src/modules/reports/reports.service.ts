@@ -12,12 +12,13 @@ export class ReportsService {
   async getTopGroupA() {
     try {
       const groupA = SubjectGroupFactory.create('A');
-      const subjectCols = groupA.getSubjectCodes().join(', ');
-      const sumExpr = groupA.getSqlSelectSum('total_score');
-      const whereExpr = groupA.getSqlWhereNotNull();
+      const subjectCodes = groupA.getSubjectCodes();
+      const subjectCols = subjectCodes.map(code => `"${code}"`).join(', ');
+      const sumExpr = subjectCodes.map(code => `"${code}"`).join(' + ');
+      const whereExpr = subjectCodes.map(code => `"${code}" IS NOT NULL`).join(' AND ');
 
       const topStudents = await this.prisma.$queryRaw<Record<string, any>[]>`
-        SELECT sbd, ${Prisma.raw(subjectCols)}, ${Prisma.raw(sumExpr)}
+        SELECT sbd, ${Prisma.raw(subjectCols)}, (${Prisma.raw(sumExpr)}) as total_score
         FROM "student_scores"
         WHERE ${Prisma.raw(whereExpr)}
         ORDER BY total_score DESC
