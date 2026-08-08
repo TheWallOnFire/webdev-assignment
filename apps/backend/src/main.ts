@@ -15,28 +15,35 @@ import express from 'express';
 const server = express();
 
 async function createNestServer(expressInstance: express.Express) {
+  const transports: winston.transport[] = [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
+      ),
+    }),
+  ];
+
+  if (!process.env.VERCEL) {
+    transports.push(
+      new winston.transports.File({
+        filename: path.join(process.cwd(), 'logs', 'error.log'),
+        level: 'error',
+        format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      }),
+      new winston.transports.File({
+        filename: path.join(process.cwd(), 'logs', 'combined.log'),
+        format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      }),
+    );
+  }
+
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressInstance),
     {
       logger: WinstonModule.createLogger({
-        transports: [
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.timestamp(),
-              nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
-            ),
-          }),
-          new winston.transports.File({
-            filename: path.join(process.cwd(), 'logs', 'error.log'),
-            level: 'error',
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-          }),
-          new winston.transports.File({
-            filename: path.join(process.cwd(), 'logs', 'combined.log'),
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-          }),
-        ],
+        transports,
       }),
     }
   );
