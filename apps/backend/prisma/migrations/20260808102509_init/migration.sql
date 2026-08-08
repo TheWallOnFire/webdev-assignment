@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "student_scores" (
-    "sbd" TEXT NOT NULL,
+    "sbd" VARCHAR(8) NOT NULL,
     "toan" DOUBLE PRECISION,
     "ngu_van" DOUBLE PRECISION,
     "ngoai_ngu" DOUBLE PRECISION,
@@ -10,10 +10,9 @@ CREATE TABLE "student_scores" (
     "lich_su" DOUBLE PRECISION,
     "dia_li" DOUBLE PRECISION,
     "gdcd" DOUBLE PRECISION,
-    "ma_ngoai_ngu" TEXT,
+    "ma_ngoai_ngu" VARCHAR(2),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "student_scores_pkey" PRIMARY KEY ("sbd")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "student_scores_sbd_key" ON "student_scores"("sbd");

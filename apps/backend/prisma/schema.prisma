@@ -7,7 +7,7 @@ datasource db {
 }
 
 model StudentScore {
-    sbd          String  @id @unique @db.VarChar(8)
+    sbd          String  @id @db.VarChar(8)
     toan         Float?
     ngu_van      Float?
     ngoai_ngu    Float?
@@ -17,10 +17,10 @@ model StudentScore {
     lich_su      Float?
     dia_li       Float?
     gdcd         Float?
-    ma_ngoai_ngu String?
+    ma_ngoai_ngu String? @db.VarChar(2)
+
+    created_at   DateTime @default(now())
+    updated_at   DateTime @default(now()) @updatedAt
 
     @@map("student_scores")
-    @@index([toan])
-    @@index([vat_li])
-    @@index([hoa_hoc])
 }

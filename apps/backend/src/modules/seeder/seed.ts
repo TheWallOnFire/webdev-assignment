@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
@@ -31,7 +31,7 @@ async function main() {
     });
     
     let isFirstLine = true;
-    let batch: any[] = [];
+    let batch: Prisma.StudentScoreCreateManyInput[] = [];
     const BATCH_SIZE = 5000;
     
     let totalInserted = 0;

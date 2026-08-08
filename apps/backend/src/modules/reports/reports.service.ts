@@ -1,6 +1,7 @@
 import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SubjectGroupFactory, SubjectFactory, Subject } from '../../common/domain/subjects';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReportsService {
@@ -15,13 +16,13 @@ export class ReportsService {
       const sumExpr = groupA.getSqlSelectSum('total_score');
       const whereExpr = groupA.getSqlWhereNotNull();
 
-      const topStudents = await this.prisma.$queryRawUnsafe(`
-        SELECT sbd, ${subjectCols}, ${sumExpr}
+      const topStudents = await this.prisma.$queryRaw<Record<string, any>[]>`
+        SELECT sbd, ${Prisma.raw(subjectCols)}, ${Prisma.raw(sumExpr)}
         FROM "student_scores"
-        WHERE ${whereExpr}
+        WHERE ${Prisma.raw(whereExpr)}
         ORDER BY total_score DESC
         LIMIT 10;
-      `);
+      `;
       
       return topStudents;
     } catch (error) {
@@ -45,10 +46,10 @@ export class ReportsService {
         COUNT(CASE WHEN "${subject.code}" < 4 THEN 1 END) as "${subject.code}_lt_4"
       `).join(',');
 
-      const statsArray: any = await this.prisma.$queryRawUnsafe(`
-        SELECT ${selectCases}
+      const statsArray = await this.prisma.$queryRaw<Record<string, number>[]>`
+        SELECT ${Prisma.raw(selectCases)}
         FROM "student_scores";
-      `);
+      `;
 
       const stats = statsArray[0];
       const distributionResult: Record<string, Record<string, number>> = {};
