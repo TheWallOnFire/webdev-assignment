@@ -65,6 +65,11 @@ This document breaks down the requirements from the assignment `README.md` into 
 ## 7. Next Steps & Refactoring (To-Do)
 - [ ] **Frontend Architecture Refactoring:** Move specific page logics and components into the `features/` directory (e.g., `features/score-checker`, `features/statistics`) to follow scalable React folder structures.
 - [ ] **Frontend UI/UX Enhancement:** Integrate TailwindCSS to replace custom inline/global CSS for better scalability and maintainability.
+- [ ] **Frontend State Management:** Implement a lightweight state management solution (e.g., Zustand or React Context) to manage global application state effectively.
+- [ ] **Frontend Error Handling:** Implement React Error Boundaries to gracefully catch component crashes and display user-friendly fallback UIs.
+- [ ] **Frontend Performance Optimization:** Utilize React.lazy and Suspense for code-splitting routes (e.g., `ScoreChecker`, `ScoreDistribution`) to reduce the initial bundle size and load time.
+- [ ] **Frontend Accessibility (a11y):** Ensure proper semantic HTML, ARIA attributes, and keyboard navigability across all components and pages.
+- [ ] **Frontend Config Validation:** Validate environment variables at runtime (e.g., using Zod) to fail fast if API endpoints are misconfigured.
 - [ ] **Backend Testing:** Set up Jest in the NestJS environment and write unit tests for `ScoresService` and `ReportsService`.
 - [ ] **E2E Testing:** Implement e2e tests using Supertest to verify the correctness of the API endpoints.
 - [ ] **Database Optimization:** Add database indexes in Prisma (e.g., on `sbd` and `total_group_a`) to optimize query performance for large datasets.

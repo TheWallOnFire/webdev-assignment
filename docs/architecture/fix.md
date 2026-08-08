@@ -1,33 +1,94 @@
-# Kế hoạch "Vắt Kiệt" Sạn Backend (Phase 6 - Security & Validation)
+If you want to check whether a **website/project contains too much AI-generated code**, don't rely on an "AI detector" alone. For source code, look for **patterns that indicate the developer doesn't fully understand or own the code**.
 
-Tuân thủ đúng yêu cầu không tạo Unit Test, tôi đã tiếp tục soi xét mã nguồn ở mức độ cực kỳ khắt khe (Senior Level) và nhận ra 3 lỗ hổng bảo mật & validation rất đặc trưng của việc "AI viết code qua loa":
+### Key points to check
 
-## 1. Vấn đề 1: Lỗ hổng Validation Số Báo Danh (AI lười)
-**Hiện trạng:** 
-Trong `scores.dto.ts`, DTO kiểm tra số báo danh (`sbd`) chỉ đang dùng `@IsString()` và `@Length(8, 8)`. 
-**Hậu quả:** 
-Nếu user nhập SBD là `ABCDEFGH` hoặc `123@!abc`, hệ thống vẫn cho lọt xuống Service và bắt Database phải đi tìm. SBD bắt buộc phải là số!
-**Giải pháp:**
-- Thêm Decorator `@Matches(/^[0-9]{8}$/, { message: 'SBD must contain exactly 8 digits' })` để khóa chặt đầu vào: Phải là 8 ký tự và phải là chữ số từ 0-9.
+| Area               | Signs of excessive AI-generated code                                                  |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| **Code structure** | Many unnecessary abstractions, wrappers, helpers, or components                       |
+| **Naming**         | Generic names like `handleData`, `processData`, `utils`, `result`, `data2` everywhere |
+| **Comments**       | Lots of verbose comments explaining obvious code                                      |
+| **Consistency**    | Different coding styles/patterns within the same project                              |
+| **Dependencies**   | Libraries added for problems that could be solved with a few lines of code            |
+| **Error handling** | Generic `try/catch` everywhere, often without meaningful recovery                     |
+| **React**          | Excessive `useEffect`, unnecessary state, duplicated components, prop drilling        |
+| **Backend**        | Over-engineered services/controllers/repositories for simple CRUD                     |
+| **Database**       | Poor schema design, unnecessary indexes, inefficient queries                          |
+| **Security**       | AI-generated-looking authentication/authorization with subtle vulnerabilities         |
+| **Dead code**      | Unused functions, imports, components, variables, or fallback logic                   |
+| **Duplication**    | Similar code repeated instead of understanding and refactoring it                     |
+| **Edge cases**     | Happy-path implementation but poor handling of invalid/empty/unexpected input         |
+| **Understanding**  | Developer cannot explain why a piece of code exists or why a library was chosen       |
 
-## 2. Vấn đề 2: Cấu hình CORS mở toang cửa (Bảo mật kém)
-**Hiện trạng:** 
-Trong `main.ts`, đang dùng lệnh `app.enableCors();` trống không.
-**Hậu quả:** 
-Mặc định NestJS sẽ cấu hình `Access-Control-Allow-Origin: *`. Bất kỳ website hacker nào cũng có thể gọi API của bạn. Đây là kiểu code AI rất hay làm để lách lỗi CORS ở máy local.
-**Giải pháp:**
-- Cấu hình lại `app.enableCors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' })` để chỉ cho phép duy nhất trang Frontend của bạn được phép truy cập.
+### Especially important: test the developer
 
-## 3. Vấn đề 3: Cấu hình Rate Limit (Throttler) bị Hardcode
-**Hiện trạng:**
-Trong `app.module.ts`, Throttler đang bị hardcode cứng là `ttl: 60000` (1 phút) và `limit: 100` request.
-**Hậu quả:**
-Không thể thay đổi linh hoạt giới hạn request khi đưa lên môi trường thật mà không phải sửa code và build lại toàn bộ.
-**Giải pháp:**
-- Cấu hình Throttler lấy thông số từ `process.env.THROTTLE_TTL` và `process.env.THROTTLE_LIMIT`.
+If you're evaluating a project, I'd use this approach:
 
----
-**Hành động tiếp theo (Action Items):**
-1. [x] Cập nhật `scores.dto.ts` để sử dụng RegExp chặn chữ cái trong SBD.
-2. [x] Sửa lại `app.enableCors` trong `main.ts` để chặn truy cập lạ.
-3. [x] Gắn biến môi trường vào cấu hình `ThrottlerModule` trong `app.module.ts`.
+**1. Find suspicious sections**
+
+* Search for unusually complex functions.
+* Look for huge components/functions.
+* Look for recently added generic utilities.
+* Identify code with inconsistent style.
+
+**2. Ask "why?"**
+For example:
+
+> Why did you use `useMemo` here?
+
+> Why is this database index necessary?
+
+> Why does this `useEffect` depend on these variables?
+
+> Why did you create this abstraction instead of putting the logic directly here?
+
+> What happens if this API returns `null`?
+
+A developer who wrote/understands the code should usually be able to explain the reasoning.
+
+**3. Ask them to modify it**
+
+This is often much better than AI detection.
+
+For example:
+
+> "Add a filter for students scoring above 8.0."
+
+Then observe whether they can **navigate and modify their own architecture** without asking AI to explain everything.
+
+### A useful scoring system
+
+You can score each area:
+
+* **0 — Human-understood:** clear, intentional code
+* **1 — Slight AI assistance:** some generated boilerplate
+* **2 — Significant AI assistance:** developer understands most of it
+* **3 — Heavy AI generation:** lots of code the developer probably doesn't understand
+* **4 — AI-dependent:** developer struggles to explain or modify the code
+
+Then evaluate:
+
+**Code quality + consistency + architectural understanding + ability to modify + dependency choices**
+
+rather than trying to determine an exact "AI percentage."
+
+### For a React + Tailwind project
+
+Since you mentioned React/Tailwind previously, I'd pay particular attention to:
+
+* giant React components (`500+` lines)
+* excessive `useEffect`
+* excessive `useState`
+* unnecessary `useMemo` / `useCallback`
+* duplicated JSX
+* components created for trivial elements
+* Tailwind classes that are extremely long/repetitive
+* arbitrary values everywhere (`mt-[13px]`, `w-[437px]`, etc.)
+* inconsistent responsive design
+* unused Tailwind classes
+* unnecessary UI libraries
+* generic hooks that aren't actually reusable
+* AI-style comments such as explaining every obvious JSX operation
+
+**The strongest signal isn't "does this code look like AI?" It's "does the author demonstrate understanding of the code?"**
+
+If you're specifically trying to **audit a submitted source-code project and produce a report showing which files/lines are likely AI-generated**, I can also give you a practical detection methodology and scoring rubric for that.
