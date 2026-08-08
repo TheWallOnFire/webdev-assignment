@@ -26,7 +26,9 @@ export const ReportsService = {
   },
 
   getScoreDistribution: async (subject: string): Promise<ScoreDistributionResponse> => {
-    const response = await apiClient.get(`/reports/score-distribution?subject=${subject}`);
+    const response = await apiClient.get('/reports/score-distribution', {
+      params: { subject }
+    });
     return response.data.data;
   }
 };

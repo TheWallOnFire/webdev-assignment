@@ -9,30 +9,34 @@ interface ChartDataPoint {
   count: number;
 }
 
+const SUBJECTS_LIST = [
+  { id: 'toan', name: 'Math' },
+  { id: 'ngu_van', name: 'Literature' },
+  { id: 'ngoai_ngu', name: 'Foreign Language' },
+  { id: 'vat_li', name: 'Physics' },
+  { id: 'hoa_hoc', name: 'Chemistry' },
+  { id: 'sinh_hoc', name: 'Biology' },
+  { id: 'lich_su', name: 'History' },
+  { id: 'dia_li', name: 'Geography' },
+  { id: 'gdcd', name: 'Civic Education' },
+];
+
 export default function ScoreDistribution() {
   const [subject, setSubject] = useState('toan');
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const subjectsList = [
-    { id: 'toan', name: 'Math' },
-    { id: 'ngu_van', name: 'Literature' },
-    { id: 'ngoai_ngu', name: 'Foreign Language' },
-    { id: 'vat_li', name: 'Physics' },
-    { id: 'hoa_hoc', name: 'Chemistry' },
-    { id: 'sinh_hoc', name: 'Biology' },
-    { id: 'lich_su', name: 'History' },
-    { id: 'dia_li', name: 'Geography' },
-    { id: 'gdcd', name: 'Civic Education' },
-  ];
-
   useEffect(() => {
+    let ignore = false;
+
     const fetchData = async () => {
       setLoading(true);
       setError('');
       try {
         const data = await ReportsService.getScoreDistribution(subject);
+        if (ignore) return;
+
         if (data && data[subject]) {
           const stats = data[subject];
           setChartData([
@@ -45,6 +49,8 @@ export default function ScoreDistribution() {
           setChartData([]);
         }
       } catch (err) {
+        if (ignore) return;
+        
         if (axios.isAxiosError(err)) {
           setError(err.response?.data?.message || 'Failed to fetch score distribution.');
         } else {
@@ -52,10 +58,17 @@ export default function ScoreDistribution() {
         }
         setChartData([]);
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
+
     fetchData();
+
+    return () => {
+      ignore = true;
+    };
   }, [subject]);
 
   return (
@@ -67,15 +80,19 @@ export default function ScoreDistribution() {
           <p className="text-sm text-slate-400">Analyze the distribution of scores across different brackets</p>
         </div>
         
-        <select 
-          className="bg-background border border-white/10 text-sm text-slate-200 rounded-md px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer min-w-[200px]"
-          value={subject} 
-          onChange={(e) => setSubject(e.target.value)}
-        >
-          {subjectsList.map(s => (
-            <option key={s.id} value={s.id} className="bg-background text-slate-200">{s.name}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-3">
+          <label htmlFor="subject-select" className="sr-only">Select Subject</label>
+          <select 
+            id="subject-select"
+            className="bg-background border border-white/10 text-sm text-slate-200 rounded-md px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer min-w-[200px]"
+            value={subject} 
+            onChange={(e) => setSubject(e.target.value)}
+          >
+            {SUBJECTS_LIST.map(s => (
+              <option key={s.id} value={s.id} className="bg-background text-slate-200">{s.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="flex-1 min-h-[400px] flex flex-col justify-center relative">

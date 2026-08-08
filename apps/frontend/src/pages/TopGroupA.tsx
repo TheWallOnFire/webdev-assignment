@@ -8,52 +8,50 @@ export default function TopGroupA() {
   const [students, setStudents] = useState<TopStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [strictFilter, setStrictFilter] = useState(false);
 
   useEffect(() => {
+    let ignore = false;
+
     const fetchTop = async () => {
       setLoading(true);
       setError('');
       try {
         const data = await ReportsService.getTopGroupA();
-        setStudents(data || []);
+        if (!ignore) {
+          setStudents(data || []);
+        }
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response?.data?.message || 'Failed to fetch Top 10 students.');
-        } else {
-          setError('An unexpected error occurred.');
+        if (!ignore) {
+          if (axios.isAxiosError(err)) {
+            setError(err.response?.data?.message || 'Failed to fetch Top 10 students.');
+          } else {
+            setError('An unexpected error occurred.');
+          }
         }
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
-    fetchTop();
-  }, []);
 
-  const displayedStudents = strictFilter 
-    ? students.filter(s => (s.toan ?? 0) > 8 && (s.vat_li ?? 0) > 8 && (s.hoa_hoc ?? 0) > 8)
-    : students;
+    fetchTop();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="bg-secondary/50 border border-white/5 rounded-xl shadow-sm p-8">
-        <div className="mb-8 border-b border-white/5 pb-6 flex items-start justify-between">
+        <div className="mb-8 border-b border-white/5 pb-6 flex flex-col sm:flex-row sm:items-center items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-slate-100 mb-1">Top 10 Group A Students</h1>
             <p className="text-sm text-slate-400">The highest scoring students in Math, Physics, and Chemistry</p>
           </div>
-          
-          <label className="flex items-center gap-2 cursor-pointer bg-white/5 px-3 py-2 rounded-md hover:bg-white/10 transition-colors border border-white/10 select-none">
-            <input 
-              type="checkbox" 
-              checked={strictFilter}
-              onChange={(e) => setStrictFilter(e.target.checked)}
-              className="rounded border-slate-600 bg-secondary/50 text-primary w-4 h-4 cursor-pointer"
-            />
-            <span className="text-sm text-slate-300 font-medium">Scores &gt; 8.0 Only</span>
-          </label>
         </div>
-        
+
         <div className="relative min-h-[300px]">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
@@ -73,8 +71,8 @@ export default function TopGroupA() {
             </div>
           )}
 
-          {!error && displayedStudents.length > 0 && (
-            <RankTable students={displayedStudents} />
+          {!error && students.length > 0 && (
+            <RankTable students={students} />
           )}
 
           {!error && !loading && students.length === 0 && (

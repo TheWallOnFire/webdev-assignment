@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ScoresService } from '../features/scores/services/scores.service';
 import { StudentScore } from '@g-scores/types';
 
@@ -9,7 +9,7 @@ export const useScore = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchScore = async (sbd: string) => {
+  const fetchScore = useCallback(async (sbd: string) => {
     setError('');
     setScore(null);
     setIsLoading(true);
@@ -25,7 +25,7 @@ export const useScore = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   return { score, error, isLoading, fetchScore };
 };
