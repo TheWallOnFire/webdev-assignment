@@ -12,7 +12,7 @@ export interface ScoreDistributionResponse {
 }
 
 export interface TopStudent {
-  sbd: string;
+  id: string;
   toan: number | null;
   vat_li: number | null;
   hoa_hoc: number | null;
@@ -22,7 +22,10 @@ export interface TopStudent {
 export const ReportsService = {
   getTopGroupA: async (): Promise<TopStudent[]> => {
     const response = await apiClient.get('/reports/top-group-a');
-    return response.data.data;
+    return response.data.data.map((student: any) => ({
+      ...student,
+      id: student.sbd
+    }));
   },
 
   getScoreDistribution: async (subject: string): Promise<ScoreDistributionResponse> => {

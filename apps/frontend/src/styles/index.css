@@ -26,3 +26,14 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #475569; /* slate-600 */
 }
+
+
+/* Light mode implementation via CSS filter */
+html.light-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html.light-mode img, html.light-mode svg {
+  filter: invert(1) hue-rotate(180deg);
+}
+

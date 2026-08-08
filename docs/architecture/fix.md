@@ -1,94 +1,325 @@
-If you want to check whether a **website/project contains too much AI-generated code**, don't rely on an "AI detector" alone. For source code, look for **patterns that indicate the developer doesn't fully understand or own the code**.
+This warning basically means:
 
-### Key points to check
+> **You are allowed to use AI, but the reviewer wants to see that you actually understand, designed, and can defend the code you submitted.**
 
-| Area               | Signs of excessive AI-generated code                                                  |
-| ------------------ | ------------------------------------------------------------------------------------- |
-| **Code structure** | Many unnecessary abstractions, wrappers, helpers, or components                       |
-| **Naming**         | Generic names like `handleData`, `processData`, `utils`, `result`, `data2` everywhere |
-| **Comments**       | Lots of verbose comments explaining obvious code                                      |
-| **Consistency**    | Different coding styles/patterns within the same project                              |
-| **Dependencies**   | Libraries added for problems that could be solved with a few lines of code            |
-| **Error handling** | Generic `try/catch` everywhere, often without meaningful recovery                     |
-| **React**          | Excessive `useEffect`, unnecessary state, duplicated components, prop drilling        |
-| **Backend**        | Over-engineered services/controllers/repositories for simple CRUD                     |
-| **Database**       | Poor schema design, unnecessary indexes, inefficient queries                          |
-| **Security**       | AI-generated-looking authentication/authorization with subtle vulnerabilities         |
-| **Dead code**      | Unused functions, imports, components, variables, or fallback logic                   |
-| **Duplication**    | Similar code repeated instead of understanding and refactoring it                     |
-| **Edge cases**     | Happy-path implementation but poor handling of invalid/empty/unexpected input         |
-| **Understanding**  | Developer cannot explain why a piece of code exists or why a library was chosen       |
+They are not necessarily saying **"don't use ChatGPT/Copilot."** The dangerous part is **excessive AI usage** and **lack of code ownership**.
 
-### Especially important: test the developer
+### 1. What "excessive AI usage" means
 
-If you're evaluating a project, I'd use this approach:
+They may suspect excessive AI involvement when your project contains things like:
 
-**1. Find suspicious sections**
+* Large amounts of code that you cannot explain.
+* Boilerplate-heavy components that don't match the rest of your coding style.
+* Over-engineered abstractions for a relatively simple application.
+* Many unnecessary libraries/dependencies.
+* Comments/docstrings that sound generic or unusually verbose.
+* Complex code where a simpler implementation would be appropriate.
+* Inconsistent naming/style between different parts of the project.
+* Generated code that you copied without adapting it to your architecture.
+* AI-generated error handling, hooks, utilities, etc. that you don't actually need.
+* Code that looks sophisticated but you cannot explain **why it works**.
 
-* Search for unusually complex functions.
-* Look for huge components/functions.
-* Look for recently added generic utilities.
-* Identify code with inconsistent style.
+For example, imagine your React app has:
 
-**2. Ask "why?"**
-For example:
+```tsx
+const useDebouncedSearch = (...) => {
+    // 40 lines of sophisticated logic
+}
+```
 
-> Why did you use `useMemo` here?
+But when the reviewer asks:
 
-> Why is this database index necessary?
+> "Why are you using `useRef` here instead of `useState`?"
 
-> Why does this `useEffect` depend on these variables?
+and you cannot explain it.
 
-> Why did you create this abstraction instead of putting the logic directly here?
+That's a **code ownership problem**.
 
-> What happens if this API returns `null`?
+---
 
-A developer who wrote/understands the code should usually be able to explain the reasoning.
+### 2. What "lack of code ownership" means
 
-**3. Ask them to modify it**
+This is probably the most important part.
 
-This is often much better than AI detection.
+**Code ownership = you can confidently explain and modify your own code.**
 
-For example:
+You should be able to answer questions such as:
 
-> "Add a filter for students scoring above 8.0."
+**Architecture**
 
-Then observe whether they can **navigate and modify their own architecture** without asking AI to explain everything.
+* Why did you choose React?
+* Why Tailwind?
+* Why this folder structure?
+* Why did you separate these components?
+* Why is this logic in a hook instead of the component?
 
-### A useful scoring system
+**Database**
 
-You can score each area:
+* Why PostgreSQL?
+* Why did you choose these indexes?
+* Why is this column nullable?
+* What happens when the query returns 100,000 rows?
+* Why did you choose this particular schema?
 
-* **0 — Human-understood:** clear, intentional code
-* **1 — Slight AI assistance:** some generated boilerplate
-* **2 — Significant AI assistance:** developer understands most of it
-* **3 — Heavy AI generation:** lots of code the developer probably doesn't understand
-* **4 — AI-dependent:** developer struggles to explain or modify the code
+**Backend**
 
-Then evaluate:
+* What happens when this API receives a request?
+* How do you validate the input?
+* What happens when the database fails?
+* Why is this endpoint structured this way?
 
-**Code quality + consistency + architectural understanding + ability to modify + dependency choices**
+**Frontend**
 
-rather than trying to determine an exact "AI percentage."
+* Why does this component re-render?
+* Why are you using `useEffect` here?
+* What happens when the API request fails?
+* Why did you choose this state structure?
 
-### For a React + Tailwind project
+**Your actual implementation**
 
-Since you mentioned React/Tailwind previously, I'd pay particular attention to:
+* What does this function do?
+* Why is this condition necessary?
+* What happens if this value is `null`?
+* Can you simplify this code?
+* What would you change if the requirements changed?
 
-* giant React components (`500+` lines)
-* excessive `useEffect`
-* excessive `useState`
-* unnecessary `useMemo` / `useCallback`
-* duplicated JSX
-* components created for trivial elements
-* Tailwind classes that are extremely long/repetitive
-* arbitrary values everywhere (`mt-[13px]`, `w-[437px]`, etc.)
-* inconsistent responsive design
-* unused Tailwind classes
-* unnecessary UI libraries
-* generic hooks that aren't actually reusable
-* AI-style comments such as explaining every obvious JSX operation
+If you can answer these naturally and modify the code yourself, you have much stronger **code ownership**.
 
-**The strongest signal isn't "does this code look like AI?" It's "does the author demonstrate understanding of the code?"**
+---
 
-If you're specifically trying to **audit a submitted source-code project and produce a report showing which files/lines are likely AI-generated**, I can also give you a practical detection methodology and scoring rubric for that.
+# How to use AI without getting yourself failed
+
+The safest mindset is:
+
+> **Use AI as a senior engineer who advises you, not as the engineer who writes your project.**
+
+### ❌ Risky workflow
+
+```text
+Requirement
+    ↓
+Ask ChatGPT "build the entire application"
+    ↓
+Copy code
+    ↓
+Fix errors with ChatGPT
+    ↓
+Copy more code
+    ↓
+Submit
+```
+
+This creates exactly the problem they're warning about.
+
+### ✅ Much safer workflow
+
+```text
+Requirement
+    ↓
+You design architecture
+    ↓
+You implement
+    ↓
+You get stuck
+    ↓
+Ask AI for explanation / alternatives
+    ↓
+Understand the answer
+    ↓
+Implement it yourself
+    ↓
+Test it
+    ↓
+Review/refactor
+```
+
+AI can still be extremely useful in the second workflow.
+
+---
+
+# A good rule: "If AI writes it, I should be able to rewrite it."
+
+For every significant piece of AI-assisted code, ask yourself:
+
+> **"Could I recreate this from scratch if ChatGPT disappeared?"**
+
+You don't necessarily need to memorize every line.
+
+But you should understand:
+
+* what it does
+* why it exists
+* why it was implemented this way
+* its assumptions
+* its edge cases
+* its performance characteristics
+* how you would modify it
+
+If the answer is **no**, don't submit it yet.
+
+---
+
+# What I would do with your React/Tailwind project
+
+Since you've been working with a React + Tailwind frontend, I'd be particularly careful about **AI-generated abstraction**.
+
+For example, don't automatically accept something like:
+
+```text
+components/
+├── common/
+│   ├── Button/
+│   ├── Modal/
+│   ├── Input/
+│   ├── Card/
+│   └── Typography/
+├── hooks/
+│   ├── useDebounce.ts
+│   ├── useModal.ts
+│   ├── useAsync.ts
+│   └── useForm.ts
+├── utils/
+│   ├── formatters.ts
+│   ├── validators.ts
+│   └── helpers.ts
+```
+
+if your application is small.
+
+An AI tends to produce **generic "enterprise-looking" architecture** because it has seen millions of such examples.
+
+A reviewer may instead prefer:
+
+```text
+src/
+├── components/
+├── pages/
+├── hooks/
+├── services/
+└── utils/
+```
+
+with only the abstractions that your application actually needs.
+
+**Simple and intentional code is often better evidence of engineering ability than complicated code.**
+
+---
+
+# Don't try to "hide AI"
+
+This is important.
+
+If the instruction says AI assistance is allowed, I would **not** recommend trying to disguise AI-generated code by:
+
+* changing variable names
+* deliberately making code worse
+* removing comments just to make it look human
+* running AI code through another "humanizer"
+* asking AI to make the code "undetectable"
+* randomly restructuring generated code
+
+That doesn't solve the underlying problem.
+
+Instead:
+
+> **Make the code genuinely yours through understanding, implementation, testing, and iteration.**
+
+If they ask you about it, you can explain your decisions.
+
+---
+
+# AI usage that is generally much safer
+
+These are useful ways to use AI while retaining ownership:
+
+### Learning
+
+> "Explain React useEffect to me using my code."
+
+### Debugging
+
+> "I'm getting this error. Here is my code. Explain why it happens."
+
+### Code review
+
+> "Review this function for bugs. Don't rewrite it."
+
+### Architecture discussion
+
+> "I need to display 100k student records. What approaches could I consider?"
+
+Then **you choose the approach**.
+
+### Alternative solutions
+
+> "What are three ways to implement this? Explain the tradeoffs."
+
+Then implement the one you understand.
+
+### Testing
+
+> "Give me edge cases I should test for this function."
+
+Then write the tests yourself.
+
+### Understanding generated code
+
+If AI gave you something:
+
+> "Explain every part of this code and why it is necessary."
+
+That's much safer than blindly copying it.
+
+---
+
+# A very practical test before submission
+
+Take your project and randomly select ~10 important pieces of code.
+
+For each one, ask yourself:
+
+| Question                           | Can you answer? |
+| ---------------------------------- | --------------- |
+| What does it do?                   | ✅               |
+| Why is it needed?                  | ✅               |
+| Why did you implement it this way? | ✅               |
+| What alternatives exist?           | ✅               |
+| What happens on invalid input?     | ✅               |
+| What happens when something fails? | ✅               |
+| Can you modify it without AI?      | ✅               |
+| Can you debug it yourself?         | ✅               |
+
+If you get something like:
+
+```text
+8/8 → Great
+6/8 → Understand it better
+4/8 → Risky
+2/8 → You probably don't own this code yet
+```
+
+That's a much better measure than trying to determine **"what percentage of my code was written by AI."**
+
+---
+
+## The key distinction
+
+They probably aren't looking for:
+
+> **"Did you use AI?"**
+
+They're looking for:
+
+> **"Is this actually your engineering work?"**
+
+You can have **30% AI assistance and strong code ownership** and be fine.
+
+You can also have **10% AI assistance but fail to explain that 10%**, which could become a problem.
+
+So don't optimize for **"making AI usage undetectable."**
+
+Optimize for:
+
+**Understand → implement → test → review → defend.**
+
+That's the safest way to satisfy the requirement.

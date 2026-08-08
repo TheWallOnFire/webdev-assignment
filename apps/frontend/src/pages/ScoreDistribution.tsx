@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ReportsService } from '../features/reports/services/reports.service';
+import { SUBJECTS_LIST } from '../config/constants';
 import { DistributionChart } from '../features/reports/components/DistributionChart';
+import { PercentageChart } from '../features/reports/components/PercentageChart';
+import { Spinner } from '../components/Spinner';
+import { ErrorMessage } from '../components/ErrorMessage';
 
 import axios from 'axios';
 
@@ -9,17 +13,7 @@ interface ChartDataPoint {
   count: number;
 }
 
-const SUBJECTS_LIST = [
-  { id: 'toan', name: 'Math' },
-  { id: 'ngu_van', name: 'Literature' },
-  { id: 'ngoai_ngu', name: 'Foreign Language' },
-  { id: 'vat_li', name: 'Physics' },
-  { id: 'hoa_hoc', name: 'Chemistry' },
-  { id: 'sinh_hoc', name: 'Biology' },
-  { id: 'lich_su', name: 'History' },
-  { id: 'dia_li', name: 'Geography' },
-  { id: 'gdcd', name: 'Civic Education' },
-];
+
 
 export default function ScoreDistribution() {
   const [subject, setSubject] = useState('toan');
@@ -28,14 +22,11 @@ export default function ScoreDistribution() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let ignore = false;
-
     const fetchData = async () => {
       setLoading(true);
       setError('');
       try {
         const data = await ReportsService.getScoreDistribution(subject);
-        if (ignore) return;
 
         if (data && data[subject]) {
           const stats = data[subject];
@@ -49,8 +40,6 @@ export default function ScoreDistribution() {
           setChartData([]);
         }
       } catch (err) {
-        if (ignore) return;
-        
         if (axios.isAxiosError(err)) {
           setError(err.response?.data?.message || 'Failed to fetch score distribution.');
         } else {
@@ -58,17 +47,11 @@ export default function ScoreDistribution() {
         }
         setChartData([]);
       } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     fetchData();
-
-    return () => {
-      ignore = true;
-    };
   }, [subject]);
 
   return (
@@ -98,24 +81,18 @@ export default function ScoreDistribution() {
       <div className="flex-1 min-h-[400px] flex flex-col justify-center relative">
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
-            <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <Spinner />
           </div>
         )}
 
-        {error && (
-          <div className="p-4 rounded-md bg-red-500/10 border border-red-500/20 flex items-start gap-3 w-full max-w-md mx-auto">
-            <svg className="w-5 h-5 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <p className="text-sm text-red-400">{error}</p>
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
 
         {!error && chartData.length > 0 && (
-          <DistributionChart chartData={chartData} />
+          <div className="flex flex-col">
+            <DistributionChart chartData={chartData} />
+            <div className="h-px bg-white/5 my-8 w-full" />
+            <PercentageChart chartData={chartData} />
+          </div>
         )}
 
         {!error && !loading && chartData.length === 0 && (

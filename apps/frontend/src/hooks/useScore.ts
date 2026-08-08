@@ -9,12 +9,12 @@ export const useScore = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchScore = useCallback(async (sbd: string) => {
+  const fetchScore = useCallback(async (id: string) => {
     setError('');
     setScore(null);
     setIsLoading(true);
     try {
-      const data = await ScoresService.getScoreBySbd(sbd);
+      const data = await ScoresService.getScoreById(id);
       setScore(data);
     } catch (err) {
       if (axios.isAxiosError(err)) {

@@ -4,9 +4,7 @@ import Layout from '../layout/Layout';
 
 const ScoreChecker = lazy(() => import('../pages/ScoreChecker'));
 const ScoreDistribution = lazy(() => import('../pages/ScoreDistribution'));
-const TopGroupA = lazy(() => import('../pages/TopGroupA'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
-const Reports = lazy(() => import('../pages/Reports'));
 const Settings = lazy(() => import('../pages/Settings'));
 
 const PageLoader = () => (
@@ -28,10 +26,8 @@ export function AppRoutes() {
         <Routes>
           <Route path="/" element={<ScoreChecker />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route path="/reports" element={<ScoreDistribution />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/statistics" element={<ScoreDistribution />} />
-          <Route path="/top-group-a" element={<TopGroupA />} />
         </Routes>
       </Suspense>
     </Layout>
