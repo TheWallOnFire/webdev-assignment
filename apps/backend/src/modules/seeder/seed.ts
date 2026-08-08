@@ -17,7 +17,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('Starting data seed...');
     
-    const csvPath = path.resolve(process.cwd(), '../../dataset/diem_thi_thpt_2024.csv');
+    const csvPath = path.join(process.cwd(), '..', '..', 'dataset', 'diem_thi_thpt_2024.csv');
     
     if (!fs.existsSync(csvPath)) {
         console.error(`CSV file not found at ${csvPath}`);

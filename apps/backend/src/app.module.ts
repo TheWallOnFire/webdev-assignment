@@ -9,8 +9,8 @@ import { ReportsModule } from './modules/reports/reports.module';
 @Module({
   imports: [
     ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
+      ttl: process.env.THROTTLE_TTL ? parseInt(process.env.THROTTLE_TTL, 10) : 60000,
+      limit: process.env.THROTTLE_LIMIT ? parseInt(process.env.THROTTLE_LIMIT, 10) : 100,
     }]),
     CacheModule.register({ isGlobal: true }),
     PrismaModule, 

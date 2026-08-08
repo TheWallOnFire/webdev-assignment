@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Load environment variables at the very beginning of the application
+
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+dotenv.config({ path: path.join(__dirname, '..', envFile) });
 
 import { NestFactory } from '@nestjs/core';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
@@ -13,6 +13,7 @@ import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-win
 import * as winston from 'winston';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { HttpErrorFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -24,21 +25,31 @@ async function bootstrap() {
             nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
           ),
         }),
+        new winston.transports.File({
+          filename: path.join(__dirname, '..', 'logs', 'error.log'),
+          level: 'error',
+          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+        }),
+        new winston.transports.File({
+          filename: path.join(__dirname, '..', 'logs', 'combined.log'),
+          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+        }),
       ],
     }),
   });
 
   app.use(helmet());
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // 1. Tự động thêm tiền tố 'api' cho TOÀN BỘ hệ thống
   app.setGlobalPrefix('api');
 
-  // 2. Kích hoạt tính năng Versioning mạnh mẽ của NestJS
   app.enableVersioning({
-    type: VersioningType.URI, // Khai báo dùng URI (ví dụ: /v1/)
-    defaultVersion: '1',      // Mặc định mọi API đều là v1 nếu không khai báo
+    type: VersioningType.URI,
+    defaultVersion: '1',
   });
 
   const config = new DocumentBuilder()
@@ -52,6 +63,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpErrorFilter());
 
   await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);

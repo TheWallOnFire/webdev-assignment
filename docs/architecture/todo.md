@@ -52,12 +52,20 @@ This document breaks down the requirements from the assignment `README.md` into 
 - [x] **Performance & Optimization:**
   - Implement caching (e.g., Redis or in-memory) for the statistics and top 10 queries, as data is static and heavy to compute repeatedly.
   - Implement pagination for any future list endpoints.
-- [x] **Testing (QA):**
+- [ ] **Testing (QA):**
   - Write unit tests for core logic (e.g., data parsing and score calculations) using Jest, Mocha, or similar.
   - Implement basic E2E testing for the main user flows.
 - [x] **API Documentation:**
   - Auto-generate API documentation using Swagger (OpenAPI) so frontend devs or external users can easily understand the endpoints.
 - [x] **CI/CD Pipeline:**
   - Set up GitHub Actions (or GitLab CI) to automatically run tests, linting, and build checks on every Pull Request.
-- [x] **Logging & Monitoring:**
-  - Set up structured logging (e.g., Winston or Pino) and error tracking (e.g., Sentry) to catch unhandled exceptions in production.
+- [ ] **Logging & Monitoring:**
+  - Set up structured logging (e.g., Winston or Pino) and error tracking (e.g., Sentry) to catch unhandled exceptions in production. (Winston is done, Sentry is pending).
+
+## 7. Next Steps & Refactoring (To-Do)
+- [ ] **Frontend Architecture Refactoring:** Move specific page logics and components into the `features/` directory (e.g., `features/score-checker`, `features/statistics`) to follow scalable React folder structures.
+- [ ] **Frontend UI/UX Enhancement:** Integrate TailwindCSS to replace custom inline/global CSS for better scalability and maintainability.
+- [ ] **Backend Testing:** Set up Jest in the NestJS environment and write unit tests for `ScoresService` and `ReportsService`.
+- [ ] **E2E Testing:** Implement e2e tests using Supertest to verify the correctness of the API endpoints.
+- [ ] **Database Optimization:** Add database indexes in Prisma (e.g., on `sbd` and `total_group_a`) to optimize query performance for large datasets.
+- [ ] **Frontend Testing:** Set up Vitest and React Testing Library to write tests for critical UI components (e.g., `ScoreChecker`).
