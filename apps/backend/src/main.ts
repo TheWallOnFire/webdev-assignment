@@ -9,35 +9,42 @@ import * as path from 'path';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpErrorFilter } from './common/filters/http-exception.filter';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
-          ),
-        }),
-        new winston.transports.File({
-          filename: path.join(process.cwd(), 'logs', 'error.log'),
-          level: 'error',
-          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        }),
-        new winston.transports.File({
-          filename: path.join(process.cwd(), 'logs', 'combined.log'),
-          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        }),
-      ],
-    }),
-  });
+const server = express();
+
+async function createNestServer(expressInstance: express.Express) {
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressInstance),
+    {
+      logger: WinstonModule.createLogger({
+        transports: [
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              nestWinstonModuleUtilities.format.nestLike('G-Scores', { colors: true }),
+            ),
+          }),
+          new winston.transports.File({
+            filename: path.join(process.cwd(), 'logs', 'error.log'),
+            level: 'error',
+            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+          }),
+          new winston.transports.File({
+            filename: path.join(process.cwd(), 'logs', 'combined.log'),
+            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+          }),
+        ],
+      }),
+    }
+  );
 
   app.enableShutdownHooks();
 
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
-  const port = parseInt(configService.get<string>('PORT', '3000'), 10);
   const frontendUrls = configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
   const allowedOrigins = frontendUrls.split(',').map(url => url.trim());
 
@@ -88,11 +95,28 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpErrorFilter());
 
-  await app.listen(port);
-  const appUrl = await app.getUrl();
-  console.log(`Application is running on: ${appUrl}`);
-  if (nodeEnv !== 'production') {
-    console.log(`Swagger docs are available at: ${appUrl}/api/docs`);
-  }
+  await app.init();
+  return app;
 }
-bootstrap();
+
+// Vercel Serverless Export
+let cachedServer: any;
+
+export default async (req: any, res: any) => {
+  if (!cachedServer) {
+    await createNestServer(server);
+    cachedServer = server;
+  }
+  return cachedServer(req, res);
+};
+
+// Fallback for local development
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  createNestServer(server).then((app) => {
+    const configService = app.get(ConfigService);
+    const port = parseInt(configService.get<string>('PORT', '3000'), 10);
+    app.listen(port, () => {
+      console.log(`Application is running on port ${port}`);
+    });
+  });
+}
