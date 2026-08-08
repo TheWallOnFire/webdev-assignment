@@ -24,14 +24,16 @@ export const ReportsService = {
     const response = await apiClient.get('/reports/top-group-a');
     return response.data.data.map((student: any) => ({
       ...student,
-      id: student.sbd
+      id: student.sbd,
     }));
   },
 
-  getScoreDistribution: async (subject: string): Promise<ScoreDistributionResponse> => {
+  getScoreDistribution: async (
+    subject: string
+  ): Promise<ScoreDistributionResponse> => {
     const response = await apiClient.get('/reports/score-distribution', {
-      params: { subject }
+      params: { subject },
     });
     return response.data.data;
-  }
+  },
 };

@@ -9,8 +9,11 @@ const Settings = lazy(() => import('../pages/Settings'));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[400px]">
-    <div 
-      className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"
+    <div
+      className={
+        'w-8 h-8 border-4 border-primary border-t-transparent ' +
+        'rounded-full animate-spin'
+      }
       role="status"
       aria-label="Loading page"
     >

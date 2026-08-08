@@ -27,13 +27,39 @@
   background: #475569; /* slate-600 */
 }
 
-
 /* Light mode implementation via CSS filter */
 html.light-mode {
   filter: invert(1) hue-rotate(180deg);
 }
 
-html.light-mode img, html.light-mode svg {
+html.light-mode img {
   filter: invert(1) hue-rotate(180deg);
+}
+
+/* Light mode overrides for specific colors and backgrounds that don't invert well */
+html.light-mode .text-emerald-400 {
+  color: #059669 !important; /* emerald-600 */
+}
+
+html.light-mode .text-primary {
+  color: #2563eb !important; /* blue-600 */
+}
+
+html.light-mode .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-mode .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-mode select {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html.light-mode select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
 }
 

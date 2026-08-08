@@ -18,7 +18,10 @@ export const useScore = () => {
       setScore(data);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Failed to fetch score. Please verify the registration number.');
+        setError(
+          err.response?.data?.message ||
+            'Failed to fetch score. Please verify the registration number.'
+        );
       } else {
         setError('An unexpected error occurred.');
       }
