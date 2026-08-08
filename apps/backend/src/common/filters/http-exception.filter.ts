@@ -23,7 +23,9 @@ export class HttpErrorFilter implements ExceptionFilter {
     const message = 
       typeof errorResponse === 'string' 
         ? errorResponse 
-        : (errorResponse as any).message || 'Internal server error';
+        : (typeof errorResponse === 'object' && errorResponse !== null && 'message' in errorResponse)
+          ? (errorResponse as Record<string, unknown>).message || 'Internal server error'
+          : 'Internal server error';
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(`[${request.method}] ${request.url} - ${exception instanceof Error ? exception.message : String(exception)}`, exception instanceof Error ? exception.stack : '');

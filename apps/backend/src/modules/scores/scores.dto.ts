@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length, Matches } from 'class-validator';
+import { IsString, Matches } from 'class-validator';
 
 export class ScoreCheckerParamDto {
   @ApiProperty({ example: '01000001', description: 'Student registration number (SBD)' })
   @IsString()
-  @Length(8, 8, { message: 'SBD must be exactly 8 characters long' })
   @Matches(/^[0-9]{8}$/, { message: 'SBD must contain exactly 8 digits (0-9)' })
   sbd!: string;
 }
@@ -45,6 +44,9 @@ export class ScoreDataDto {
 }
 
 export class ScoreResponseDto {
+  @ApiProperty({ example: 200 })
+  statusCode!: number;
+
   @ApiProperty({ example: 'success' })
   status!: string;
 

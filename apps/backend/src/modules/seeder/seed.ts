@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+import { SubjectFactory } from '../../common/domain/subjects';
 
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 dotenv.config({ path: path.resolve(__dirname, `../../../${envFile}`) });
@@ -36,32 +37,37 @@ async function main() {
     
     let totalInserted = 0;
 
+    let headers: string[] = [];
+
     for await (const line of rl) {
+        const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+
         if (isFirstLine) {
+            headers = columns.map(h => h.toLowerCase());
             isFirstLine = false;
             continue;
         }
         
-        const [
-            sbd, toan, ngu_van, ngoai_ngu, vat_li, hoa_hoc, sinh_hoc, lich_su, dia_li, gdcd, ma_ngoai_ngu
-        ] = line.split(',');
+        const getValue = (colName: string) => {
+            const index = headers.indexOf(colName);
+            return index !== -1 ? columns[index] : undefined;
+        };
+
+        const parseScore = (val?: string) => (val && val.trim() !== '') ? parseFloat(val) : null;
         
-        const parseScore = (val: string) => (val && val.trim() !== '') ? parseFloat(val) : null;
-        
+        const sbd = getValue('sbd');
         if (sbd && sbd.trim() !== '') {
-            batch.push({
+            const studentData: any = {
                 sbd: sbd.trim(),
-                toan: parseScore(toan),
-                ngu_van: parseScore(ngu_van),
-                ngoai_ngu: parseScore(ngoai_ngu),
-                vat_li: parseScore(vat_li),
-                hoa_hoc: parseScore(hoa_hoc),
-                sinh_hoc: parseScore(sinh_hoc),
-                lich_su: parseScore(lich_su),
-                dia_li: parseScore(dia_li),
-                gdcd: parseScore(gdcd),
-                ma_ngoai_ngu: ma_ngoai_ngu ? ma_ngoai_ngu.trim() : null,
-            });
+                ma_ngoai_ngu: getValue('ma_ngoai_ngu')?.trim() || null,
+            };
+
+            const subjects = SubjectFactory.getAllSubjects();
+            for (const subject of subjects) {
+                studentData[subject.code] = parseScore(getValue(subject.code));
+            }
+
+            batch.push(studentData as Prisma.StudentScoreCreateManyInput);
         }
         
         if (batch.length >= BATCH_SIZE) {

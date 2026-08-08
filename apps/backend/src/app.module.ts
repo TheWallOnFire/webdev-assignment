@@ -17,8 +17,8 @@ import { ReportsModule } from './modules/reports/reports.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => [{
-        ttl: config.get<number>('THROTTLE_TTL', 60000),
-        limit: config.get<number>('THROTTLE_LIMIT', 100),
+        ttl: parseInt(config.get<string>('THROTTLE_TTL', '60000'), 10),
+        limit: parseInt(config.get<string>('THROTTLE_LIMIT', '100'), 10),
       }],
     }),
     CacheModule.register({ isGlobal: true }),

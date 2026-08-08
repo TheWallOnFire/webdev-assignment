@@ -16,6 +16,7 @@
   "devDependencies": {
     "@g-scores/tsconfig": "*",
     "@prisma/client": "^7.9.1",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.5.1",
     "dotenv-cli": "^7.3.0",
     "nodemon": "^3.1.14",

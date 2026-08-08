@@ -27,8 +27,11 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
+# Copy backend specific node_modules in case they were not hoisted
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=builder /app/apps/backend/.env* ./apps/backend/
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 
 WORKDIR /app/apps/backend

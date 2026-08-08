@@ -1,22 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { IsOptional, IsIn } from 'class-validator';
 
-export enum ValidSubjects {
-  TOAN = 'toan',
-  NGU_VAN = 'ngu_van',
-  NGOAI_NGU = 'ngoai_ngu',
-  VAT_LI = 'vat_li',
-  HOA_HOC = 'hoa_hoc',
-  SINH_HOC = 'sinh_hoc',
-  LICH_SU = 'lich_su',
-  DIA_LI = 'dia_li',
-  GDCD = 'gdcd',
-}
+import { SubjectFactory } from '../../common/domain/subjects';
+
+const validSubjectCodes = SubjectFactory.getAllSubjects().map(s => s.code);
 
 export class ScoreDistributionQueryDto {
   @ApiProperty({ required: false, description: 'Filter by a specific subject (e.g., toan, ngu_van)' })
   @IsOptional()
-  @IsEnum(ValidSubjects, { message: 'Invalid subject provided' })
+  @IsIn(validSubjectCodes, { message: 'Invalid subject provided' })
   subject?: string;
 }
 
@@ -38,6 +30,9 @@ export class TopGroupADataDto {
 }
 
 export class TopGroupAResponseDto {
+  @ApiProperty({ example: 200 })
+  statusCode!: number;
+
   @ApiProperty({ example: 'success' })
   status!: string;
 
@@ -46,6 +41,9 @@ export class TopGroupAResponseDto {
 }
 
 export class ScoreDistributionResponseDto {
+  @ApiProperty({ example: 200 })
+  statusCode!: number;
+
   @ApiProperty({ example: 'success' })
   status!: string;
 

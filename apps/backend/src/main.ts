@@ -37,12 +37,24 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
-  const port = configService.get<number>('PORT', 3000);
-  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
+  const port = parseInt(configService.get<string>('PORT', '3000'), 10);
+  const frontendUrls = configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
+  const allowedOrigins = frontendUrls.split(',').map(url => url.trim());
 
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        styleSrc: [`'self'`, `'unsafe-inline'`],
+        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+        scriptSrc: [`'self'`, `https:`, `'unsafe-inline'`],
+      },
+    },
+  }));
+
   app.enableCors({
-    origin: frontendUrl,
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
   });
   

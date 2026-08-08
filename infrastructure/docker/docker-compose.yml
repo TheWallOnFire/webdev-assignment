@@ -18,7 +18,12 @@ services:
     build:
       context: ../../
       dockerfile: apps/backend/Dockerfile
+      target: builder
     container_name: g_scores_backend
+    command: npm run dev
+    volumes:
+      - ../../apps/backend/src:/app/apps/backend/src
+      - ../../apps/backend/.env.development:/app/apps/backend/.env.development
     ports:
       - "3000:3000"
     environment:
@@ -31,9 +36,14 @@ services:
     build:
       context: ../../
       dockerfile: apps/frontend/Dockerfile
+      target: builder
     container_name: g_scores_frontend
+    command: npm run dev -- --host
+    volumes:
+      - ../../apps/frontend/src:/app/apps/frontend/src
+      - ../../apps/frontend/.env.development:/app/apps/frontend/.env.development
     ports:
-      - "5173:80"
+      - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:3000/api/v1
     depends_on:
