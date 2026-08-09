@@ -6,10 +6,12 @@ WORKDIR /app
 COPY package.json package-lock.json* turbo.json ./
 # Copy workspace package.json files
 COPY apps/backend/package.json ./apps/backend/
+# Copy Prisma schema early for postinstall hook
+COPY apps/backend/prisma ./apps/backend/prisma
 # Copy shared packages
 COPY packages ./packages
 
-# Install dependencies (ignoring missing ones for now if any)
+# Install dependencies
 RUN npm install
 
 # Copy source code
